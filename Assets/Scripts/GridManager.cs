@@ -3,76 +3,67 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour {
-    public GameObject[] prefabs;
     public char[] map;
     public int width;
     public float scale;
     public Transform parent;
 
-    private enum TERRAIN
-    {
-        REGULAR = 'R',
-        ELEMENT = 'E',
-        TRAP = 'T'
-    }
+    [SerializeField] private MapScriptable _map;
+    
+
+    private List<Tile> _tileMap = new List<Tile>();
+
+    [SerializeField]    private Tile TilePrefab;
+    PoolObjectContainer _pool;
+
+
 
 	// Use this for initialization
-	void Start () {
-        map = new char[] { 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-                           'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-                           'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-                           'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-                           'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-                           'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R'};
-        width = 8;
-        scale = 5.0f;
-        CreateGrid(map, width, scale);
+	void Awake () {
+        _pool = GetComponent<PoolObjectContainer>( );
+        _pool.Init( TilePrefab.gameObject, this.transform, 10 );
     }
 
-    void CreateGrid(char[] map, int width, float scale)
+    private void Start()
     {
-        int height = map.Length / width;
-        float sizeX = prefabs[0].GetComponent<SpriteRenderer>().size.x * scale;
-        float sizeY = prefabs[0].GetComponent<SpriteRenderer>().size.y * scale;
-        float actualX;
-        float actualY = 0.0f;
-        bool flip;
-        for (int i = 0; i < height; i++)
+        CreateGrid( );
+    }
+
+    void CreateGrid()
+    {
+        _tileMap.Clear( );
+        var capacity = _map.Width * _map.Height;
+        _tileMap.Capacity = capacity;
+        
+        for(var x = 0; x < _map.Width; x++ )
         {
-            actualX = 0.0f;
-            flip = (i % 2 == 0) ? true : false;
-            for(int j = 0; j < width; j++)
+            for(var y=0; y< _map.Height; y++ )
             {
-                GameObject go = null;
-                switch ((TERRAIN)map[i*width + j])
+                var tileObj = _pool.Get();
+                tileObj.transform.localPosition = new Vector2( x, y );
+                tileObj.SetActive( true );
+                var tile = tileObj.GetComponent<Tile>();
+                if(_map.map != null)
                 {
-                    case TERRAIN.REGULAR:
-                        if (flip)
-                        {
-                            go = Instantiate(prefabs[10], new Vector3(actualX, actualY, 0.0f), Quaternion.identity);
-                        }
-                        else
-                        {
-                            go = Instantiate(prefabs[11], new Vector3(actualX, actualY, 0.0f), Quaternion.identity);
-                        }
-                        break;
-                    case TERRAIN.ELEMENT:
-                        go = Instantiate(prefabs[0], new Vector3(actualX, actualY, 0.0f), Quaternion.identity);
-                        break;
+                    var mapPos = x +_map.Width * y;
+                    TileScriptable tileInfo = null;
+                    switch(_map.map[mapPos])
+                    {
+                        case 'M':
+                            tileInfo = _map.Monsters.Random( );
+                            break;
+                        case 'T':
+                            tileInfo = _map.Traps.Random( );
+                            break;
+                        default: //Floor
+                            tileInfo = _map.Floors.Random( );
+                            break;
+
+                    }
+                    tile.SetTile(x, y, tileInfo );
+                    
                 }
-                if (go)
-                {
-                    go.transform.localScale = new Vector3(scale, scale, 1.0f);
-                }
-                flip = !flip;
-                actualX += sizeX;
             }
-            actualY += sizeY;
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
