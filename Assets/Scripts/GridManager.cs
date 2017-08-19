@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GridManager : MonoBehaviour {
     public char[] map;
     public int width;
     public float scale;
     public Transform parent;
+
+    public static event UnityAction OnCreateGrid;
 
     [SerializeField] private MapScriptable _map;
     
@@ -29,8 +32,10 @@ public class GridManager : MonoBehaviour {
         CreateGrid( );
     }
 
-    void CreateGrid()
+    public void CreateGrid()
     {
+        if(OnCreateGrid != null)
+            OnCreateGrid.Invoke( );
         _tileMap.Clear( );
         var capacity = _map.Width * _map.Height;
         _tileMap.Capacity = capacity;

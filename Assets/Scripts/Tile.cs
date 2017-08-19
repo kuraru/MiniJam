@@ -13,7 +13,22 @@ public class Tile : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         _renderer = GetComponent<SpriteRenderer>( );
+       
 	}
+
+    private void OnEnable()
+    {
+        GridManager.OnCreateGrid += OnCreateGrid;
+    }
+    private void OnDisable()
+    {
+        GridManager.OnCreateGrid -= OnCreateGrid;
+    }
+
+    private void OnCreateGrid()
+    {
+        gameObject.SetActive( false );
+    }
 
     public void SetTile(int x, int y, TileScriptable tileInfo)
     {
