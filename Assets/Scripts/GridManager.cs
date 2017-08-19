@@ -12,19 +12,28 @@ public class GridManager : MonoBehaviour {
     public static event UnityAction OnCreateGrid;
 
     [SerializeField] private MapScriptable _map;
+
+    public MapScriptable Map
+    {
+        get { return _map; }
+        set { _map = value;
+            CreateGrid( );
+        }
+    }
     
 
     private List<Tile> _tileMap = new List<Tile>();
 
     [SerializeField]    private Tile TilePrefab;
     PoolObjectContainer _pool;
-
+    Camera _camera;
 
 
 	// Use this for initialization
 	void Awake () {
         _pool = GetComponent<PoolObjectContainer>( );
         _pool.Init( TilePrefab.gameObject, this.transform, 10 );
+        _camera = Camera.main;
     }
 
     private void Start()
@@ -38,6 +47,10 @@ public class GridManager : MonoBehaviour {
             OnCreateGrid.Invoke( );
         _tileMap.Clear( );
         var capacity = _map.Width * _map.Height;
+        var camPos = _camera.transform.localPosition;
+        camPos.x = (float)_map.Width / 2;
+        camPos.y = (float)_map.Height / 2;
+        _camera.transform.localPosition = camPos;
         _tileMap.Capacity = capacity;
         
         for(var x = 0; x < _map.Width; x++ )

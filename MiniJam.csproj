@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\ExtensionMethods.cs" />
     <Compile Include="Assets\Scripts\GridManager.cs" />
+    <Compile Include="Assets\Scripts\MapManager.cs" />
     <Compile Include="Assets\Scripts\Pool\PoolObject.cs" />
     <Compile Include="Assets\Scripts\Pool\PoolObjectContainer.cs" />
     <Compile Include="Assets\Scripts\Pool\PoolObjectDictionary.cs" />
